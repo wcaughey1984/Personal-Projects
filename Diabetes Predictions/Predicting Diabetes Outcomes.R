@@ -57,7 +57,7 @@ test_results_logit <- tibble(
     mutate(`Predicted Outcome` = factor((`Results` > 0.5)),
            `Actual Outcome` = factor(`Actual Outcome`))
 
-## How good are my predictions?
+## Test Model
 
 tab1 <- with(test_results_logit, table(`Actual Outcome`, `Predicted Outcome`))
 (tab1[1,1] + tab1[2,2]) / sum(tab1)
@@ -66,11 +66,15 @@ with(test_results_logit, specificity(`Actual Outcome`, `Predicted Outcome`))
 
 ##### Linear Discriminate Analysis #####
 
+## Train Model
+
 mod2 <- lda(`Outcome` ~ . - Age, data = train_set, prior = c(1-0.105, 0.105))
 summary(mod2)
 
 predictions_mod2 <- mod2 %>% predict(test_set)
 names(predictions_mod2)
+
+## Test Model
 
 test_results_lda <- tibble(
     `Actual Outcome` = test_set$Outcome,
@@ -86,9 +90,13 @@ with(test_results_lda, specificity(`Actual Outcome`, `Predicted Outcome`))
 
 ##### Classification Tree #####
 
+## Train Model
+
 mod3 <- rpart(`Outcome` ~ . - Age, data = train_set, method = "class")
 summary(mod3)
 prp(mod3)
+
+## Test Model
 
 prediction_mod3 <- mod3 %>% predict(test_set)
 
@@ -106,6 +114,8 @@ with(test_results_ct, specificity(`Actual Outcome`, `Predicted Outcome`))
 
 ##### Random Forest #####
 
+## Train Model
+
 mod4 <- randomForest(as.factor(`Outcome`) ~ . - Age, 
                      data = train_set,
                      ntree = 500,
@@ -113,6 +123,8 @@ mod4 <- randomForest(as.factor(`Outcome`) ~ . - Age,
                      nodesize = 5)
 
 varImpPlot(mod4, type = 1)
+
+## Test Model
 
 prediction_mod4 <- mod4 %>% predict(test_set)
 
